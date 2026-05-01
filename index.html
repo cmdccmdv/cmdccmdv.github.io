@@ -1,0 +1,92 @@
+<html>
+<head>
+<title>Desmos Simulations</title>
+<style>
+  body { font-family: sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+  h1 { border-bottom: 2px solid black; padding-bottom: 8px; }
+  #search { width: 300px; padding: 4px; font-size: 14px; }
+  .controls { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  #cols { padding: 4px; font-size: 14px; }
+  #list { display: grid; gap: 24px; }
+  .project { border-bottom: 1px solid #ccc; padding-bottom: 20px; }
+  .project h2 { margin-bottom: 6px; }
+  .project p { margin-bottom: 10px; color: #333; }
+  .embed-wrap { position: relative; width: 100%; height: 400px; border: 1px solid #aaa; }
+  .embed-wrap iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+  .embed-wrap.active iframe { pointer-events: all; }
+  .overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .overlay button { font-size: 14px; padding: 6px 14px; cursor: pointer; }
+  .embed-wrap.active .overlay { display: none; }
+  a { color: blue; }
+</style>
+</head>
+<body>
+<h1>Desmos Physics Simulations</h1>
+<p>A collection of physics simulations built in Desmos. Click a simulation to interact with it.</p>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search…">
+  <label>Columns:
+    <select id="cols">
+      <option value="1">1</option>
+      <option value="2" selected>2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+  </label>
+</div>
+<div id="list"></div>
+
+<script>
+const projects = [
+  { name: "3D Magnetic Field", desc: "A three-dimensional visualisation of a magnetic field, showing field lines and their spatial distribution around a source.", url: "https://www.desmos.com/3d/1jphxo34bt" },
+  { name: "Vector Field Lines", desc: "Interactive vector field explorer showing directional flow and magnitude across a 2D plane.", url: "https://www.desmos.com/calculator/mzsawutfrr" },
+  { name: "4-Body Gravity | Euler's Method", desc: "Numerical simulation of four mutually gravitating bodies using Euler's method, demonstrating chaotic orbital dynamics.", url: "https://www.desmos.com/calculator/fnzwmtacb7" },
+  { name: "2-Body Gravity Simulation", desc: "Classical two-body gravitational problem showing elliptical orbits and conservation of angular momentum.", url: "https://www.desmos.com/calculator/i0iixm9dmg" },
+  { name: "Mandelbrot Set", desc: "Exploration of the Mandelbrot set — the iconic fractal boundary defined by complex number iteration.", url: "https://www.desmos.com/calculator/7oogxvi8mw" },
+  { name: "Mitosis Animation", desc: "A geometric animation of cell division, illustrating the stages of mitosis through mathematical curves.", url: "https://www.desmos.com/calculator/3f8e6152d6" }
+];
+
+function embedUrl(url) {
+  return url.includes('/3d/') ? url + '?embed' : url + '?embed';
+}
+
+function render(list) {
+  document.getElementById('list').innerHTML = list.length === 0
+    ? '<p>No results.</p>'
+    : list.map((p, i) => `
+      <div class="project">
+        <h2>${p.name}</h2>
+        <p>${p.desc}</p>
+        <div class="embed-wrap" id="w${i}">
+          <iframe src="${embedUrl(p.url)}" loading="lazy"></iframe>
+          <div class="overlay" onclick="document.getElementById('w${i}').classList.add('active')">
+            <button>Click to interact</button>
+          </div>
+        </div>
+        <p><a href="${p.url}" target="_blank">Open in Desmos →</a></p>
+      </div>
+    `).join('');
+}
+
+const colsSel = document.getElementById('cols');
+const searchEl = document.getElementById('search');
+const listEl = document.getElementById('list');
+
+function getFiltered() {
+  const q = searchEl.value.toLowerCase();
+  return projects.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q));
+}
+
+function updateCols() {
+  listEl.style.gridTemplateColumns = `repeat(${colsSel.value}, 1fr)`;
+}
+
+searchEl.addEventListener('input', () => render(getFiltered()));
+colsSel.addEventListener('change', updateCols);
+
+render(projects);
+updateCols();
+</script>
+</body>
+</html>
